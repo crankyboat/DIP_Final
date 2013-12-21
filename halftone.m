@@ -1,4 +1,5 @@
-function halftone3_prob2(filename)
+function halftone(filename)
+
     filename = 'sample1.raw';
 	warning('off','all');
 
@@ -109,6 +110,7 @@ function halftone3_prob2(filename)
 	% simu(subI);
 	% pause;
 	
+	% % vid output method 1
 	% vid_name = 'vid.avi';
 	% vid_fps = 20;
 	% vid_quality = 100; %100 is max
@@ -140,6 +142,7 @@ function halftone3_prob2(filename)
 	% % close vid
 	% vid = close(vid);
 	
+	% % vid output method 2
 	% clear M;
 	% for f=1:f_num
 		% imshow(subI(:,:,f));
