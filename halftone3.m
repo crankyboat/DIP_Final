@@ -1,5 +1,4 @@
-function halftone(filename)
-
+function halftone3(filename)
     filename = 'sample1.raw';
 	warning('off','all');
 
@@ -19,17 +18,19 @@ function halftone(filename)
 	% split into f_num images
 	subI = zeros(maxJ, maxK, f_num);
 	
+    black_and_white = false;
+    
 	for j=1:maxJ
 		for k=1:2:maxK
 			r = rand;
-			if I(j, k)==1 & I(j,k+1)==1
-				if r < 0.5
-					subI(j, k, :) = 1;
-					subI(j, k+1, :) = 0;
-				else
-					subI(j, k, :) = 0;
-					subI(j, k+1, :) = 1;
-				end
+			if I(j, k)==1 && I(j,k+1)==1
+                if r < 0.5
+                    subI(j, k, :) = 1;
+                    subI(j, k+1, :) = 0;
+                else
+                    subI(j, k, :) = 0;
+                    subI(j, k+1, :) = 1;
+                end
 				%{
 			elseif I(j, k)==1/lev*2
 				if r < 0.5
@@ -58,23 +59,32 @@ function halftone(filename)
 				%}
 				% one white, one black
 			elseif I(j, k) + I(j, k+1) == 1
-				if r < 0.25
-					subI(j, k, 1:2) = 1;
-					subI(j, k+1, 1:2) = 0;
-					subI(j, k, 3:4) = 0;
-					subI(j, k+1, 3:4) = 1;
-				elseif r < 0.5
-					subI(j, k, 1:2) = 0;
-					subI(j, k+1, 1:2) = 1;
-					subI(j, k, 3:4) = 1;
-					subI(j, k+1, 3:4) = 0;
-				elseif r < 0.75
-					subI(j, k, :) = 1;
-					subI(j, k+1, :) = 0;
-				else
-					subI(j, k, :) = 0;
-					subI(j, k+1, :) = 1;
-				end
+                black_and_white = ~black_and_white;
+                if black_and_white == true
+                    % same as two black
+                    for f=1:2:f_num
+                        if r < 0.5
+                            subI(j, k, f) = 1;
+                            subI(j, k+1, f) = 0;
+                            subI(j, k, f+1) = 0;
+                            subI(j, k+1, f+1) = 1;
+                        else
+                            subI(j, k, f) = 0;
+                            subI(j, k+1, f) = 1;
+                            subI(j, k, f+1) = 1;
+                            subI(j, k+1, f+1) = 0;
+                        end
+                    end
+                else
+                    % same as two white
+                    if r < 0.5
+                        subI(j, k, :) = 1;
+                        subI(j, k+1, :) = 0;
+                    else
+                        subI(j, k, :) = 0;
+                        subI(j, k+1, :) = 1;
+                    end
+                end
 			else
 			%elseif I(j, k)==1/lev*1 & I(j, k+1) ==1/lev*1
 				if r < 0.5
@@ -110,7 +120,6 @@ function halftone(filename)
 	% simu(subI);
 	% pause;
 	
-	% % vid output method 1
 	% vid_name = 'vid.avi';
 	% vid_fps = 20;
 	% vid_quality = 100; %100 is max
@@ -142,7 +151,6 @@ function halftone(filename)
 	% % close vid
 	% vid = close(vid);
 	
-	% % vid output method 2
 	% clear M;
 	% for f=1:f_num
 		% imshow(subI(:,:,f));

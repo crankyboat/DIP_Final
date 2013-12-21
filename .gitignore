@@ -2,8 +2,13 @@ imgPlayer/imgPlayer.sdf
 imgPlayer/imgPlayer.suo
 imgPlayer/imgPlayer.opensdf
 imgPlayer/ipch/*
-imgPlayer/Debug/*
+imgPlayer/Release/imgPlayer.pdb
+imgPlayer/Release/imgPlayer.ilk
+imgPlayer/Debug/imgPlayer.pdb
+imgPlayer/Debug/imgPlayer.ilk
+imgPlayer/imgPlayer/result.jpg
 imgPlayer/imgPlayer/imgPlayer.vcxproj.filters
 imgPlayer/imgPlayer/imgPlayer.vcxproj.user
 imgPlayer/imgPlayer/Debug/*
 imgPlayer/imgPlayer/Release/*
+input/*
