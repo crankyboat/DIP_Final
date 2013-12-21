@@ -18,6 +18,8 @@ function halftone3(filename)
 	% split into f_num images
 	subI = zeros(maxJ, maxK, f_num);
 	
+    black_and_white = false;
+    
 	for j=1:maxJ
 		for k=1:2:maxK
 			r = rand;
@@ -57,30 +59,30 @@ function halftone3(filename)
 				%}
 				% one white, one black
 			elseif I(j, k) + I(j, k+1) == 1
-                for f=1:2:f_num
-                    r2 = rand;
-                    if r < 0.5
-                        % same as two black
-                        if r2 < 0.5
+                black_and_white = ~black_and_white;
+                if black_and_white == true
+                    % same as two black
+                    for f=1:2:f_num
+                        if r < 0.5
                             subI(j, k, f) = 1;
                             subI(j, k+1, f) = 0;
                             subI(j, k, f+1) = 0;
                             subI(j, k+1, f+1) = 1;
                         else
-                            subI(j, k, f:f) = 0;
-                            subI(j, k+1, f:f) = 1;
-                            subI(j, k, f:f+1) = 1;
-                            subI(j, k+1, f:f+1) = 0;
+                            subI(j, k, f) = 0;
+                            subI(j, k+1, f) = 1;
+                            subI(j, k, f+1) = 1;
+                            subI(j, k+1, f+1) = 0;
                         end
+                    end
+                else
+                    % same as two white
+                    if r < 0.5
+                        subI(j, k, :) = 1;
+                        subI(j, k+1, :) = 0;
                     else
-                        % same as two white
-                        if r2 < 0.5
-                            subI(j, k, f:f+1) = 1;
-                            subI(j, k+1, f:f+1) = 0;
-                        else
-                            subI(j, k, f:f+1) = 0;
-                            subI(j, k+1, f:f+1) = 1;
-                        end
+                        subI(j, k, :) = 0;
+                        subI(j, k+1, :) = 1;
                     end
                 end
 			else
