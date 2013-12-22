@@ -27,7 +27,14 @@ function halftone_color(filename, do_redist)
 	figure('Name', 'RGB'), imshow(cat(3, R, G, B));
 	% pause;
 	% close all;
-	
+	masks = [];
+    masks(:,:,1) = [1 1; 0 0];
+    masks(:,:,2) = [1 0; 1 0];
+    masks(:,:,3) = [0 0; 1 1];
+    masks(:,:,4) = [0 1; 0 1];
+    masks(:,:,5) = [1 0; 0 1];
+    masks(:,:,6) = [0 1; 1 0];
+    
 	% split into r, g, b, k shares
 	subI = zeros(maxJ*2, maxK*2, 4);
 	for j=1:maxJ
@@ -38,10 +45,7 @@ function halftone_color(filename, do_redist)
 			end
 			
 			% generate mask
-			mask = [];
-			while numel(nonzeros(mask))~=3
-				mask = rand(2, 2) < 0.75;
-			end
+            mask = masks(:,:,randi([1 6]));
 			
 			% process k element
 			subI((2*j-1):2*j, (2*k-1):2*k, 4) = mask;
@@ -74,7 +78,7 @@ function halftone_color(filename, do_redist)
 	G_masked(K==0) = 0;
 	B_masked(K==0) = 0;
 	figure('Name', 'stacked'), imshow(cat(3, R_masked, G_masked, B_masked));
-	pause;
+	%pause;
 	
 	% randomly redistribute colors
 	if do_redist
@@ -112,37 +116,37 @@ function halftone_color(filename, do_redist)
 	% pause;
 	
 	% vid output method 1
-	vid_name = 'color_vid.avi';
-	vid_fps = 20;
-	vid_quality = 100; %100 is max
-	% create vid
-	vid = avifile(vid_name, 'fps', vid_fps, 'quality', vid_quality);
-	% iterations
-	fig = figure;
-	for i=1:80
-		
-		if do_redist
-			imshow(redist(:, :, :, mod(i, redist_num)+1));
-		else
-			switch mod(i,4)
-				case 0
-					imshow(cat(3, R, z, z));
-				case 1
-					imshow(cat(3, z, G, z));
-				case 2
-					imshow(cat(3, z, z, B));
-				case 3
-					imshow(K);
-			end
-		end
-		
-		% capture frame
-		vid = addframe(vid, getframe(fig));
-		drawnow
-	end
-	% close vid
-	vid = close(vid);
-	
+% 	vid_name = 'color_vid.avi';
+% 	vid_fps = 20;
+% 	vid_quality = 100; %100 is max
+% 	% create vid
+% 	vid = avifile(vid_name, 'fps', vid_fps, 'quality', vid_quality);
+% 	% iterations
+% 	fig = figure;
+% 	for i=1:80
+% 		
+% 		if do_redist
+% 			imshow(redist(:, :, :, mod(i, redist_num)+1));
+% 		else
+% 			switch mod(i,4)
+% 				case 0
+% 					imshow(cat(3, R, z, z));
+% 				case 1
+% 					imshow(cat(3, z, G, z));
+% 				case 2
+% 					imshow(cat(3, z, z, B));
+% 				case 3
+% 					imshow(K);
+% 			end
+% 		end
+% 		
+% 		% capture frame
+% 		vid = addframe(vid, getframe(fig));
+% 		drawnow
+% 	end
+% 	% close vid
+% 	vid = close(vid);
+% 	
 	% % vid output method 2
 	% clear M;
 	% for f=1:f_num
