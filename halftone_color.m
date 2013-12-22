@@ -4,6 +4,7 @@ function halftone_color(filename, do_redist)
 	
 	close all;
 	max_inten = 255;
+    f_num = 6;
 	
 	% load image and threshold
 	I = imread(filename);
@@ -34,50 +35,60 @@ function halftone_color(filename, do_redist)
     masks(:,:,4) = [0 1; 0 1];
     masks(:,:,5) = [1 0; 0 1];
     masks(:,:,6) = [0 1; 1 0];
-    
+
 	% split into r, g, b, k shares
-	subI = zeros(maxJ*2, maxK*2, 4);
-	for j=1:maxJ
-		for k=1:maxK
-			
-			if mod(j, 100)==0 && mod(k, 100)==0
-				j, k
-			end
-			
-			% generate mask
-            mask = masks(:,:,randi([1 6]));
-			
-			% process k element
-			subI((2*j-1):2*j, (2*k-1):2*k, 4) = mask;
-			
-			% process r, g, b elements
-			for f=1:3
-				if thres_I(j, k, f)	% color will be revealed where mask is 1
-					subI((2*j-1):2*j, (2*k-1):2*k, f) = mask * max_inten;
-				else				% color will be masked where mask is 0
-					subI((2*j-1):2*j, (2*k-1):2*k, f) = ~mask * max_inten;
-				end
-			end
-			
-		end
+    for f=1:f_num
+        subI = zeros(maxJ*2, maxK*2, 4);
+        for j=1:maxJ
+            for k=1:maxK
+
+                if mod(j, 100)==0 && mod(k, 100)==0
+                    j, k
+                end
+
+                % generate mask
+                %mask = masks(:,:,f);
+                mask = masks(:,:,randi([1,f_num]));
+
+                % process k element
+                subI((2*j-1):2*j, (2*k-1):2*k, 4) = mask;
+
+                % process r, g, b elements
+                for channel=1:3
+                    if thres_I(j, k, channel)	% color will be revealed where mask is 1
+                        subI((2*j-1):2*j, (2*k-1):2*k, channel) = mask * max_inten;
+                    else				% color will be masked where mask is 0
+                        subI((2*j-1):2*j, (2*k-1):2*k, channel) = ~mask * max_inten;
+                    end
+                end
+
+            end
+        end
+
+        z = zeros(maxJ*2, maxK*2);
+        zz = zeros(maxJ*2);
+        R = subI(:, :, 1);
+        %figure('Name', 'R'), imshow(cat(3, R, z, z));
+        G = subI(:, :, 2);
+        %figure('Name', 'G'), imshow(cat(3, z, G, z));
+        B = subI(:, :, 3);
+        %figure('Name', 'B'), imshow(cat(3, z, z, B));
+        K = subI(:, :, 4);
+        %figure('Name', 'K'), imshow(cat(3, R, G, B));
+       
+        %export_fig result.jpg
+        %saveas(cat(3,R,G,B), 'result.jpg', 'jpg');
+        R_masked = R;
+        G_masked = G;
+        B_masked = B;
+        nR = numel(nonzeros(K==0));
+        R_masked(K==0) = (rand(nR,1) < 0.5)*max_inten;
+        G_masked(K==0) = (rand(nR,1) < 0.5)*max_inten;
+        B_masked(K==0) = (rand(nR,1) < 0.5)*max_inten;
+        %figure('Name', 'stacked'), imshow(cat(3, R_masked, G_masked, B_masked));
+        imwrite(cat(3,R_masked,G_masked,B_masked), strcat('input/', num2str(f), '.bmp'), 'bmp');
+        imwrite(cat(3,R,G,B), strcat('input/', num2str(f), '_noise.bmp'), 'bmp');
     end
-	
-	z = zeros(maxJ*2, maxK*2);
-	R = subI(:, :, 1);
-	figure('Name', 'R'), imshow(cat(3, R, z, z));
-	G = subI(:, :, 2);
-	figure('Name', 'G'), imshow(cat(3, z, G, z));
-	B = subI(:, :, 3);
-	figure('Name', 'B'), imshow(cat(3, z, z, B));
-	K = subI(:, :, 4);
-	figure('Name', 'K'), imshow(K);
-	R_masked = R;
-	G_masked = G;
-	B_masked = B;
-	R_masked(K==0) = 0;
-	G_masked(K==0) = 0;
-	B_masked(K==0) = 0;
-	figure('Name', 'stacked'), imshow(cat(3, R_masked, G_masked, B_masked));
 	%pause;
 	
 	% randomly redistribute colors

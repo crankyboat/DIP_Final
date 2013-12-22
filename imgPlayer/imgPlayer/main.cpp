@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
   CImg<long long> output(width,height,1,channels,0);
   CImgDisplay main_disp((*images[0]),"lol");
   int count;
-  for(count = 0; !main_disp.is_closed() && count < image_num*100; count++) {
+  for(count = 0; !main_disp.is_closed() && count < image_num*200; count++) {
 	//if(count & 1 == 1)
 	  //display = (*noises[count % whiteNoise_num]);
 	//else
