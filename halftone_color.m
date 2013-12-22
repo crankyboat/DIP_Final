@@ -1,4 +1,4 @@
-function halftone_color(filename)
+function halftone_color(filename, do_redist)
 
 	warning('off','all');
 	
@@ -25,8 +25,8 @@ function halftone_color(filename)
 	B = thres_I(:, :, 3);
 	figure('Name', 'B'), imshow(cat(3, z, z, B));
 	figure('Name', 'RGB'), imshow(cat(3, R, G, B));
-	pause;
-	close all;
+	% pause;
+	% close all;
 	
 	% split into r, g, b, k shares
 	subI = zeros(maxJ*2, maxK*2, 4);
@@ -39,8 +39,8 @@ function halftone_color(filename)
 			
 			% generate mask
 			mask = [];
-			while numel(nonzeros(mask))~=2
-				mask = rand(2, 2) < 0.5;
+			while numel(nonzeros(mask))~=3
+				mask = rand(2, 2) < 0.75;
 			end
 			
 			% process k element
@@ -48,9 +48,9 @@ function halftone_color(filename)
 			
 			% process r, g, b elements
 			for f=1:3
-				if thres_I(j, k, f)	% color will be revealed where mask is 1 (white)
+				if thres_I(j, k, f)	% color will be revealed where mask is 1
 					subI((2*j-1):2*j, (2*k-1):2*k, f) = mask * max_inten;
-				else				% color will be masked where mask is 0 (black)
+				else				% color will be masked where mask is 0
 					subI((2*j-1):2*j, (2*k-1):2*k, f) = ~mask * max_inten;
 				end
 			end
@@ -67,12 +67,32 @@ function halftone_color(filename)
 	figure('Name', 'B'), imshow(cat(3, z, z, B));
 	K = subI(:, :, 4);
 	figure('Name', 'K'), imshow(K);
+	R_masked = R;
+	G_masked = G;
+	B_masked = B;
+	R_masked(K==0) = 0;
+	G_masked(K==0) = 0;
+	B_masked(K==0) = 0;
+	figure('Name', 'stacked'), imshow(cat(3, R_masked, G_masked, B_masked));
 	pause;
-	% stacked = cat(3, R, G, B);
-	% figure('Name', 'RGB'), imshow(stacked);
-	% pause;
+	
+	% randomly redistribute colors
+	if do_redist
+		redist_num = 10;
+		redist = zeros(maxJ*2, maxK*2, 3, redist_num);
+		for r=1:redist_num
+			rand1 = rand(maxJ*2, maxK*2) < 0.15;
+			rand2 = rand(maxJ*2, maxK*2) < 0.15;
+			rand3 = rand(maxJ*2, maxK*2) < 0.15;
+			figure('Name', 'redist'), imshow(cat(3, R.*rand1, G.*rand2, B.*rand3));
+			redist(:, :, :, r) = cat(3, R.*rand1, G.*rand2, B.*rand3);
+			% pause;
+		end
+	end
+	pause;
 	close all;
-    
+	% pause;
+	
     % output images
     % outputPath = 'input/';
     % for i=1:f_num
@@ -91,31 +111,37 @@ function halftone_color(filename)
 	% simu(subI);
 	% pause;
 	
-	% % vid output method 1
-	% vid_name = 'color_vid.avi';
-	% vid_fps = 20;
-	% vid_quality = 100; %100 is max
-	% % create vid
-	% vid = avifile(vid_name, 'fps', vid_fps, 'quality', vid_quality);
-	% % iterations
-	% fig = figure;
-	% for i=1:80
-		% switch mod(i,4)
-			% case 0
-				% imshow(cat(3, R, z, z));
-			% case 1
-				% imshow(cat(3, z, G, z));
-			% case 2
-				% imshow(cat(3, z, z, B));
-			% case 3
-				% imshow(K);
-		% end
-		% % capture frame
-		% vid = addframe(vid, getframe(fig));
-		% drawnow
-	% end
-	% % close vid
-	% vid = close(vid);
+	% vid output method 1
+	vid_name = 'color_vid.avi';
+	vid_fps = 20;
+	vid_quality = 100; %100 is max
+	% create vid
+	vid = avifile(vid_name, 'fps', vid_fps, 'quality', vid_quality);
+	% iterations
+	fig = figure;
+	for i=1:80
+		
+		if do_redist
+			imshow(redist(:, :, :, mod(i, redist_num)+1));
+		else
+			switch mod(i,4)
+				case 0
+					imshow(cat(3, R, z, z));
+				case 1
+					imshow(cat(3, z, G, z));
+				case 2
+					imshow(cat(3, z, z, B));
+				case 3
+					imshow(K);
+			end
+		end
+		
+		% capture frame
+		vid = addframe(vid, getframe(fig));
+		drawnow
+	end
+	% close vid
+	vid = close(vid);
 	
 	% % vid output method 2
 	% clear M;
